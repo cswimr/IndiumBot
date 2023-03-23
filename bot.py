@@ -1,8 +1,7 @@
-import os
 import discord
-from discord import app_commands
+from discord import app_commands, ui
 from discord.ext import commands
-from discord.ext.commands import Greedy, Context
+import os
 from dotenv import load_dotenv
 import time
 
@@ -11,15 +10,9 @@ token = os.getenv('TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
-intents.guilds=True
-intents.members=True
-intents.reactions=True
-
-bot = commands.Bot(command_prefix='-', intents=intents)
-
-@bot.event
-async def on_ready():
-    print(f"""Logged on as {bot.user}!""")
+intents.guilds = True
+intents.members = True
+intents.reactions = True
 
 class Core(discord.Client):
   def __init__(self):
@@ -27,46 +20,53 @@ class Core(discord.Client):
     self.synced = False
     self.added = False
 
-async def on_ready(self):
+  async def on_ready(self):
     await self.wait_until_ready()
     if not self.synced:
-        await tree.sync(guild = discord.Object('1088276267872296972'))
-        self.synced = True
+      await tree.sync(guild = discord.Object('1088276267872296972'))
+      await tree.sync()
+      self.synced = True
     if not self.added:
-        self.added = True
+      self.added = True
+    print(f'Logged in as {self.user} (ID: {self.user.id})')
+    print('-------------------------------------------------------------')
 
 client = Core()
 tree = discord.app_commands.CommandTree(client)
 
-@bot.event
+@client.event
 async def on_message(message):
-    if message.author != bot.user:
+    if message.author != client.user:
         print(f"{message.author}: {message.content}")
 
 @tree.command(description="Checks the bot's latency.", guild=discord.Object('1088276267872296972'))
-async def ping(interaction: discord.Interaction) -> None:
+async def ping(interaction: discord.Interaction):
     """Checks the bot's latency."""
     before = time.monotonic()
-    await interaction.response.send_message("Pong!", ephemeral=True)
+    await interaction.response.send_message("🏓", ephemeral=True)
     ping = (time.monotonic() - before) * 1000
-    await discord.InteractionMessage.edit(content=f"Pong!  `{int(ping)}ms`")
+    embed=discord.Embed(title="🏓 Pong!", description=f"```py\n{int(ping)} ms```", color=15844367)
+    await interaction.edit_original_response(content=None, embed=embed)
     print(f'Ping {int(ping)}ms')
 
-@bot.command()
-async def dm(ctx: commands.Context, user: discord.Member, *, message: str):
-    """Sends a Direct Message to a user."""
-    try:
-        await user.send(message)
-    except (discord.HTTPException, discord.Forbidden) as error:
-        await ctx.send(content="That user has their direct messages closed!")
-    finally:
-        await ctx.message.add_reaction("✅")
+@tree.command(description="Sends a direct message to a user.", guild=discord.Object('1088276267872296972'))
+@discord.app_commands.describe(member="What member are you sending a message to?", message="Input the message you're sending.")
+async def message(interaction: discord.Interaction, member: discord.User, message: str):
+   """Sends a direct message to a user."""
+   try:
+      await member.send(message)
+      await interaction.response.send_message(content=f"Message sent!\nMessage contents:\n```{message}```", ephemeral=True)
+   except (discord.HTTPException, discord.Forbidden) as error:
+      await interaction.response.send_message(content="That user has their direct messages closed or is not in the server!", ephemeral=True)
 
-@dm.error
-async def dm_error(ctx, error):
-    """Error handling for DM command."""
-    if isinstance(error, commands.MemberNotFound):
-        await ctx.send(content="That is not a user or a user id!")
-        return
+@tree.command(description="Sends a message to a channel.", guild=discord.Object('1088276267872296972'))
+@discord.app_commands.describe(channel="What channel are you sending this message to?", message="Input the message you're sending.")
+async def say(interaction: discord.Interaction, channel: discord.TextChannel, message: str):
+   """Sends a message to a channel."""
+   try:
+      await channel.send(message)
+      await interaction.response.send_message(content=f"Message sent to {channel.mention}!\nMessage contents:\n```{message}```", ephemeral=True)
+   except (discord.HTTPException, discord.Forbidden) as error:
+      await interaction.response.send_message(content="I can't see that channel!", ephemeral=True)
 
-bot.run(token)
+client.run(token)
