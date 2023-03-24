@@ -16,7 +16,7 @@ intents.reactions = True
 
 guild_id = 1071574508114296965
 GUILD = discord.Object(f'{guild_id}')
-codeblock = "```"
+cb = "```"
 
 class Core(discord.Client):
   def __init__(self):
@@ -67,10 +67,10 @@ class MessageModal(discord.ui.Modal, title="Sending message..."):
             if self.secondary_message.value != "":
                 await self.target.send(self.secondary_message)
                 await interaction.response.send_message(
-                content=f"Message sent to {self.target.mention}!\nMessage contents:\n{codeblock}{self.message}{codeblock}\n{codeblock}{self.secondary_message}{codeblock}", ephemeral=True)
+                content=f"Message sent to {self.target.mention}!\nMessage contents:\n{cb}{self.message}{cb}\n{cb}{self.secondary_message}{cb}", ephemeral=True)
             else:
                await interaction.response.send_message(
-                content=f"Message sent to {self.target.mention}!\nMessage contents:\n{codeblock}{self.message}{codeblock}", ephemeral=True)
+                content=f"Message sent to {self.target.mention}!\nMessage contents:\n{cb}{self.message}{cb}", ephemeral=True)
         except (discord.HTTPException, discord.Forbidden) as error:
             if target_type == "member":
                 await interaction.response.send_message(content="That user has their direct messages closed!", ephemeral=True)
@@ -78,24 +78,32 @@ class MessageModal(discord.ui.Modal, title="Sending message..."):
                await interaction.response.send_message(content="I cannot access that channel!", ephemeral=True)
 
 
-@client.tree.command(description="Sends a direct message to a user.", guild=discord.Object(f'{guild_id}'))
+@client.tree.command(description="Sends a direct message to a user.", guild=GUILD)
+class Send(app_commands.Group):
+    
+    @app_commands.command()
+    async def my_subcommand(self, interaction: discord.Interaction) -> None:
+        await interaction.response.send_message("hello from the subcommand!")
+    
+
+@client.tree.command(description="Sends a direct message to a user.", guild=GUILD)
 @discord.app_commands.describe(member="What member are you sending a message to?")
 async def message(interaction: discord.Interaction, member: discord.Member):
     """Sends a direct message to a user."""
     await interaction.response.send_modal(MessageModal(member))
 
-@client.tree.context_menu(name="Send Message", guild=discord.Object(f'{guild_id}'))
+@client.tree.context_menu(name="Send Message", guild=GUILD)
 async def cm_message(interaction: discord.Interaction, member: discord.Member):
     """Sends a direct message to a user."""
     await interaction.response.send_modal(MessageModal(member))
 
-@client.tree.command(description="Sends a message to a channel.", guild=discord.Object(f'{guild_id}'))
+@client.tree.command(description="Sends a message to a channel.", guild=GUILD)
 @discord.app_commands.describe(channel="What channel are you sending this message to?")
 async def say(interaction: discord.Interaction, channel: discord.TextChannel):
    """Sends a message to a channel."""
    await interaction.response.send_modal(MessageModal(channel))
 
-@client.tree.command(description="Checks the bot's latency.", guild=discord.Object(f'{guild_id}'))
+@client.tree.command(description="Checks the bot's latency.", guild=GUILD)
 async def ping(interaction: discord.Interaction):
     """Checks the bot's latency."""
     before = time.monotonic()
