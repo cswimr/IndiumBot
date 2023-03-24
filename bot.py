@@ -88,6 +88,11 @@ async def message(interaction: discord.Interaction, member: discord.Member):
     """Sends a direct message to a user."""
     await interaction.response.send_modal(MessageModal(member))
 
+@tree.context_menu(name="Send Message", guild=discord.Object(f'{guild_id}'))
+async def cm_message(interaction: discord.Interaction, member: discord.Member):
+    """Sends a direct message to a user."""
+    await interaction.response.send_modal(MessageModal(member))
+
 @tree.command(description="Sends a message to a channel.", guild=discord.Object(f'{guild_id}'))
 @discord.app_commands.describe(channel="What channel are you sending this message to?")
 async def say(interaction: discord.Interaction, channel: discord.TextChannel):
