@@ -23,7 +23,7 @@ class Core(discord.Client):
   async def on_ready(self):
     await self.wait_until_ready()
     if not self.synced:
-      await tree.sync(guild = discord.Object('1088276267872296972'))
+      await tree.sync(guild=discord.Object('1088276267872296972'))
       await tree.sync()
       self.synced = True
     if not self.added:
@@ -38,25 +38,24 @@ class MessageModal(discord.ui.Modal, title="Message"):
     def __init__(self, member):
         super().__init__()
         self.member = member
-
-    message = discord.ui.TextInput(
-        label="Message Content",
-        placeholder="I'm contacting you about your cars extended warranty...",
-        style=discord.TextStyle.paragraph,
-        max_length=2000
-    )
-    secondary_message = discord.ui.TextInput(
-        label="Secondary Message Content",
-        placeholder="Typically used for images/image links.",
-        style=discord.TextStyle.paragraph,
-        required=False,
-        max_length=2000
-    )
+        self.message = discord.ui.TextInput(
+            label="Message Content",
+            placeholder="I'm contacting you about your cars extended warranty...",
+            style=discord.TextStyle.paragraph,
+            max_length=2000
+        )
+        self.secondary_message = discord.ui.TextInput(
+            label="Secondary Message Content",
+            placeholder="Typically used for images/image links.",
+            style=discord.TextStyle.paragraph,
+            required=False,
+            max_length=2000
+        )
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
             await self.member.send(message)
-            if secondary_message:
+            if self.secondary_message:
                 await self.member.send(secondary_message)
         except (discord.HTTPException, discord.Forbidden) as error:
             await interaction.response.send_message(content="That user has their direct messages closed!",
