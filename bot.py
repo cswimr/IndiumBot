@@ -15,28 +15,23 @@ intents.members = True
 intents.reactions = True
 
 guild_id = 1071574508114296965
+GUILD = discord.Object(f'{guild_id}')
 codeblock = "```"
 
 class Core(discord.Client):
   def __init__(self):
     super().__init__(intents = intents)
-    self.synced = False
-    self.added = False
+    self.tree = app_commands.CommandTree(self)
 
   async def setup_hook(self):
-    if not self.synced:
-      await tree.sync(guild=discord.Object(f'{guild_id}'))
-      await tree.sync()
-      self.synced = True
-    if not self.added:
-      self.added = True
-    print(f'Logged in as {self.user} (ID: {self.user.id})')
+      self.tree.copy_global_to(guild=GUILD)
+      await self.tree.sync(guild=GUILD)
+      print(f'Logged in as {self.user} (ID: {self.user.id})')
 
   async def on_ready(self):
     print('-------------------------------------------------------------')
 
 client = Core()
-tree = discord.app_commands.CommandTree(client)
 
 @client.event
 async def on_message(message):
@@ -83,24 +78,24 @@ class MessageModal(discord.ui.Modal, title="Sending message..."):
                await interaction.response.send_message(content="I cannot access that channel!", ephemeral=True)
 
 
-@tree.command(description="Sends a direct message to a user.", guild=discord.Object(f'{guild_id}'))
+@client.tree.command(description="Sends a direct message to a user.", guild=discord.Object(f'{guild_id}'))
 @discord.app_commands.describe(member="What member are you sending a message to?")
 async def message(interaction: discord.Interaction, member: discord.Member):
     """Sends a direct message to a user."""
     await interaction.response.send_modal(MessageModal(member))
 
-@tree.context_menu(name="Send Message", guild=discord.Object(f'{guild_id}'))
+@client.tree.context_menu(name="Send Message", guild=discord.Object(f'{guild_id}'))
 async def cm_message(interaction: discord.Interaction, member: discord.Member):
     """Sends a direct message to a user."""
     await interaction.response.send_modal(MessageModal(member))
 
-@tree.command(description="Sends a message to a channel.", guild=discord.Object(f'{guild_id}'))
+@client.tree.command(description="Sends a message to a channel.", guild=discord.Object(f'{guild_id}'))
 @discord.app_commands.describe(channel="What channel are you sending this message to?")
 async def say(interaction: discord.Interaction, channel: discord.TextChannel):
    """Sends a message to a channel."""
    await interaction.response.send_modal(MessageModal(channel))
 
-@tree.command(description="Checks the bot's latency.", guild=discord.Object(f'{guild_id}'))
+@client.tree.command(description="Checks the bot's latency.", guild=discord.Object(f'{guild_id}'))
 async def ping(interaction: discord.Interaction):
     """Checks the bot's latency."""
     before = time.monotonic()
