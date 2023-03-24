@@ -63,7 +63,7 @@ class MessageModal(discord.ui.Modal, title="Message"):
                                                     ephemeral=True)
         finally:
             await interaction.response.send_message(
-                content=f"Message sent!\nMessage contents:\nREPLACEWITHDISOCORDCODEBLOCKCHARACTERS{message}REPLACEWITHDISOCORDCODEBLOCKCHARACTERS",
+                content=f"Message sent!\nMessage contents:\n```{message}```",
                 ephemeral=True)
 
 
