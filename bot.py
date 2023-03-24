@@ -23,8 +23,7 @@ class Core(discord.Client):
     self.synced = False
     self.added = False
 
-  async def on_ready(self):
-    await self.wait_until_ready()
+  async def setup_hook(self):
     if not self.synced:
       await tree.sync(guild=discord.Object(f'{guild_id}'))
       await tree.sync()
@@ -32,6 +31,9 @@ class Core(discord.Client):
     if not self.added:
       self.added = True
     print(f'Logged in as {self.user} (ID: {self.user.id})')
+
+  async def on_ready(self):
+    print('Bot is ready!')
     print('-------------------------------------------------------------')
 
 client = Core()
@@ -43,7 +45,7 @@ async def on_message(message):
         print(f"{message.author}: {message.content}")
 
 
-class MessageModal(discord.ui.Modal, title="Message"):
+class MessageModal(discord.ui.Modal, title="Sending message..."):
     def __init__(self, target):
         super().__init__()
         self.target = target
