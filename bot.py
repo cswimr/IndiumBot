@@ -33,7 +33,6 @@ class Core(discord.Client):
     print(f'Logged in as {self.user} (ID: {self.user.id})')
 
   async def on_ready(self):
-    print('Bot is ready!')
     print('-------------------------------------------------------------')
 
 client = Core()
