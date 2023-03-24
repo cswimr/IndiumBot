@@ -78,12 +78,13 @@ class MessageModal(discord.ui.Modal, title="Sending message..."):
                await interaction.response.send_message(content="I cannot access that channel!", ephemeral=True)
 
 
-@client.tree.command(description="Sends a direct message to a user.", guild=GUILD)
 class Send(app_commands.Group):
     
     @app_commands.command()
     async def my_subcommand(self, interaction: discord.Interaction) -> None:
         await interaction.response.send_message("hello from the subcommand!")
+
+client.tree.add_command(Send())
     
 
 @client.tree.command(description="Sends a direct message to a user.", guild=GUILD)
