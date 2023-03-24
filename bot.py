@@ -1,6 +1,5 @@
 import discord
 from discord import app_commands, ui
-from discord.ext import commands
 import os
 from dotenv import load_dotenv
 import time
@@ -23,7 +22,7 @@ class Core(discord.Client):
   async def on_ready(self):
     await self.wait_until_ready()
     if not self.synced:
-      await tree.sync(guild = discord.Object('1088276267872296972'))
+      await tree.sync(guild = discord.Object('1071574508114296965'))
       await tree.sync()
       self.synced = True
     if not self.added:
@@ -39,7 +38,7 @@ async def on_message(message):
     if message.author != client.user:
         print(f"{message.author}: {message.content}")
 
-@tree.command(description="Checks the bot's latency.", guild=discord.Object('1088276267872296972'))
+@tree.command(description="Checks the bot's latency.", guild = discord.Object('1071574508114296965'))
 async def ping(interaction: discord.Interaction):
     """Checks the bot's latency."""
     before = time.monotonic()
@@ -49,7 +48,7 @@ async def ping(interaction: discord.Interaction):
     await interaction.edit_original_response(content=None, embed=embed)
     print(f'Ping {int(ping)}ms')
 
-@tree.command(description="Sends a direct message to a user.", guild=discord.Object('1088276267872296972'))
+@tree.command(description="Sends a direct message to a user.", guild = discord.Object('1071574508114296965'))
 @discord.app_commands.describe(member="What member are you sending a message to?", message="Input the message you're sending.")
 async def message(interaction: discord.Interaction, member: discord.User, message: str):
    """Sends a direct message to a user."""
@@ -59,7 +58,7 @@ async def message(interaction: discord.Interaction, member: discord.User, messag
    except (discord.HTTPException, discord.Forbidden) as error:
       await interaction.response.send_message(content="That user has their direct messages closed or is not in the server!", ephemeral=True)
 
-@tree.command(description="Sends a message to a channel.", guild=discord.Object('1088276267872296972'))
+@tree.command(description="Sends a message to a channel.", guild = discord.Object('1071574508114296965'))
 @discord.app_commands.describe(channel="What channel are you sending this message to?", message="Input the message you're sending.")
 async def say(interaction: discord.Interaction, channel: discord.TextChannel, message: str):
    """Sends a message to a channel."""
