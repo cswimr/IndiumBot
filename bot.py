@@ -81,28 +81,21 @@ class MessageModal(discord.ui.Modal, title="Sending message..."):
 class Send(app_commands.Group):
     
     @app_commands.command()
-    async def my_subcommand(self, interaction: discord.Interaction) -> None:
-        await interaction.response.send_message("hello from the subcommand!")
+    async def dm(interaction: discord.Interaction, member: discord.Member):
+        """Sends a direct message to a user."""
+        await interaction.response.send_modal(MessageModal(member))
+
+    @app_commands.command()
+    async def channel(interaction: discord.Interaction, channel: discord.TextChannel):
+        """Sends a message to a channel."""
+        await interaction.response.send_modal(MessageModal(channel))
 
 client.tree.add_command(Send())
-    
-
-@client.tree.command(description="Sends a direct message to a user.", guild=GUILD)
-@discord.app_commands.describe(member="What member are you sending a message to?")
-async def message(interaction: discord.Interaction, member: discord.Member):
-    """Sends a direct message to a user."""
-    await interaction.response.send_modal(MessageModal(member))
 
 @client.tree.context_menu(name="Send Message", guild=GUILD)
 async def cm_message(interaction: discord.Interaction, member: discord.Member):
     """Sends a direct message to a user."""
     await interaction.response.send_modal(MessageModal(member))
-
-@client.tree.command(description="Sends a message to a channel.", guild=GUILD)
-@discord.app_commands.describe(channel="What channel are you sending this message to?")
-async def say(interaction: discord.Interaction, channel: discord.TextChannel):
-   """Sends a message to a channel."""
-   await interaction.response.send_modal(MessageModal(channel))
 
 @client.tree.command(description="Checks the bot's latency.", guild=GUILD)
 async def ping(interaction: discord.Interaction):
