@@ -18,24 +18,12 @@ guild_id = 1071574508114296965
 GUILD = discord.Object(f'{guild_id}')
 cb = "```"
 
-class Core(discord.Client):
-  def __init__(self):
-    super().__init__(intents = intents)
-    self.tree = app_commands.CommandTree(self)
+bot = commands.Bot(command_prefix="~", intents=intents)
 
-  async def setup_hook(self):
-      self.tree.copy_global_to(guild=GUILD)
-      await self.tree.sync(guild=GUILD)
-      print(f'Logged in as {self.user} (ID: {self.user.id})')
-
-  async def on_ready(self):
-    print('-------------------------------------------------------------')
-
-client = Core()
-
-@client.event
+@bot.event
 async def on_message(message):
-    if message.author != client.user:
+    await bot.process_commands(message)
+    if message.author != bot.user:
         print(f"{message.author}: {message.content}")
 
 
@@ -90,21 +78,24 @@ class Send(app_commands.Group):
         """Sends a message to a channel."""
         await interaction.response.send_modal(MessageModal(channel))
 
-client.tree.add_command(Send())
-
-@client.tree.context_menu(name="Send Message", guild=GUILD)
+@bot.tree.context_menu(name="Send Message", guild=GUILD)
 async def cm_message(interaction: discord.Interaction, member: discord.Member):
     """Sends a direct message to a user."""
     await interaction.response.send_modal(MessageModal(member))
 
-@client.tree.command(description="Checks the bot's latency.", guild=GUILD)
-async def ping(interaction: discord.Interaction):
+@bot.command(description="Checks the bot's latency.", guild=GUILD)
+async def ping(ctx):
     """Checks the bot's latency."""
-    before = time.monotonic()
-    await interaction.response.send_message("🏓", ephemeral=True)
-    ping = (time.monotonic() - before) * 1000
-    embed=discord.Embed(title="🏓 Pong!", description=f"```py\n{int(ping)} ms```", color=15844367)
-    await interaction.edit_original_response(content=None, embed=embed)
-    print(f'Ping {int(ping)}ms')
+    await ctx.send('Pong! {0}'.format(round(bot.latency*1000)) + " ms")
 
-client.run(token)
+@bot.command(description="Loads rpg cog.", guild=GUILD)
+async def load_rpg(interaction: discord.Interaction):
+    """Loads rpg cog."""
+
+
+@bot.command()
+async def test(ctx):
+    await ctx.send("Hello there")
+
+
+bot.run(token)
