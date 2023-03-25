@@ -29,7 +29,8 @@ class Core(discord.Client):
       print(f'Logged in as {self.user} (ID: {self.user.id})')
 
   async def on_ready(self):
-    print('-------------------------------------------------------------')
+    print('Bot is ready!')
+    print('-------------')
 
 client = Core()
 
@@ -83,6 +84,9 @@ class Send(app_commands.Group):
     @app_commands.command()
     async def dm(self, interaction: discord.Interaction, member: discord.Member):
         """Sends a direct message to a user."""
+        if member.id == interaction.client.user.id:
+            await interaction.response.send_message(content="I cannot DM myself!", ephemeral=True)
+            return
         await interaction.response.send_modal(MessageModal(member))
 
     @app_commands.command()
@@ -95,6 +99,9 @@ client.tree.add_command(Send())
 @client.tree.context_menu(name="Send Message", guild=GUILD)
 async def cm_message(interaction: discord.Interaction, member: discord.Member):
     """Sends a direct message to a user."""
+    if member.id == interaction.client.user.id:
+        await interaction.response.send_message(content="I cannot DM myself!", ephemeral=True)
+        return
     await interaction.response.send_modal(MessageModal(member))
 
 @client.tree.command(description="Checks the bot's latency.", guild=GUILD)
